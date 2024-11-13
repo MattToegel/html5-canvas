@@ -1,0 +1,62 @@
+<canvas id="canvas" style="border: 1px solid;">
+
+</canvas>
+<div style="display:flex">
+    <div>
+        <label>X</label>
+        <input type="range" min="0" max="1" step="0.1" name="x" onchange="updateProps(event)" />
+    </div>
+    <div>
+        <label>Y</label>
+        <input type="range" min="0" max="1" step="0.1" name="y" onchange="updateProps(event)" />
+    </div>
+    <div>
+        <label>Start Angle</label>
+        <input type="range" min="0" max="1" step="0.1" name="s" onchange="updateProps(event)" />
+    </div>
+    <div>
+        <label>End Angle</label>
+        <input type="range" min="0" max="1" step="0.1" name="e" onchange="updateProps(event)" />
+    </div>
+</div>
+<div>
+    Use the sliders to adjust the shape
+</div>
+<a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/arc.html">Code on Github</a>
+<script>
+    let x, y, startAngle, endAngle;
+    const updateProps = (event) => {
+        // apply values from slider
+        let n = event.srcElement.name;
+        const v = +event.srcElement.value;
+        switch (n) {
+            case "x": x = v * canvas.width;
+                break;
+            case "y": y = v * canvas.height;
+                break;
+            case "s": startAngle = v * Math.PI;
+                break;
+            case "e": endAngle = v * Math.PI;
+                break;
+        }
+        drawArc();
+    };
+    window.addEventListener("load", () => {
+        // set defaults
+        x = canvas.width / 2;
+        startAngle = Math.PI;
+        y = canvas.height / 2;
+        endAngle = Math.PI;
+        drawArc();
+    });
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "black";
+    const drawArc = () => {
+        console.log(startAngle, endAngle)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.arc(x, y, 50,startAngle, endAngle, true);
+        ctx.stroke();
+    }
+</script>
