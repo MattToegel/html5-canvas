@@ -1,0 +1,82 @@
+<canvas id="canvas" width="400" height="200" style="border: 1px solid;"></canvas>
+<div>
+    <label>Arc Radius:
+        <input type="range" id="radiusSlider" min="5" max="100" value="40">
+    </label>
+    <p>Click and drag the red control points</p>
+    <a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/arcto.html">Code on Github</a>
+</div>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const radiusSlider = document.getElementById("radiusSlider");
+
+    let controlPoints = [{ x: 200, y: 130 }, { x: 50, y: 20 }];
+    let selectedPoint = null;
+    let arcRadius = 40;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineCap = "round";
+
+        // Draw tangent lines
+        ctx.beginPath();
+        ctx.strokeStyle = "gray";
+        ctx.moveTo(200, 20);
+        ctx.lineTo(controlPoints[0].x, controlPoints[0].y);
+        ctx.lineTo(controlPoints[1].x, controlPoints[1].y);
+        ctx.stroke();
+
+        // Draw arc
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 5;
+        ctx.moveTo(200, 20);
+        ctx.arcTo(controlPoints[0].x, controlPoints[0].y, controlPoints[1].x, controlPoints[1].y, arcRadius);
+        ctx.stroke();
+
+        // Draw start point and control points
+        ctx.fillStyle = "blue";
+        ctx.beginPath();
+        ctx.arc(200, 20, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = "red";
+        controlPoints.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        });
+    }
+
+    function isNearPoint(x, y, point) {
+        return Math.hypot(x - point.x, y - point.y) <= 10;
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+        if (e.button === 0) {
+            const { offsetX: x, offsetY: y } = e;
+            selectedPoint = controlPoints.find(p => isNearPoint(x, y, p));
+        }
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+        if (selectedPoint) {
+            selectedPoint.x = e.offsetX;
+            selectedPoint.y = e.offsetY;
+            draw();
+        }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+        selectedPoint = null;
+    });
+
+    radiusSlider.addEventListener("input", (e) => {
+        // str to num conversion with +
+        arcRadius = +e.target.value;
+        draw();
+    });
+
+    draw();
+</script>
