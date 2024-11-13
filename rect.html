@@ -4,83 +4,57 @@
 <div style="display:flex">
     <div>
         <label>X</label>
-        <input type="range" min="0" max="1" step="0.1" name="x" onchange="updateProps(event)"/>
+        <input type="range" min="0" max="1" step="0.1" name="x" onchange="updateProps(event)" />
     </div>
     <div>
         <label>Y</label>
-        <input type="range" min="0" max="1" step="0.1" name="y" onchange="updateProps(event)"/>
+        <input type="range" min="0" max="1" step="0.1" name="y" onchange="updateProps(event)" />
     </div>
     <div>
         <label>Width</label>
-        <input type="range" min="0" max="1" step="0.1" name="w" onchange="updateProps(event)"/>
+        <input type="range" min="0" max="1" step="0.1" name="w" onchange="updateProps(event)" />
     </div>
     <div>
         <label>Height</label>
-        <input type="range" min="0" max="1" step="0.1" name="h" onchange="updateProps(event)"/>
+        <input type="range" min="0" max="1" step="0.1" name="h" onchange="updateProps(event)" />
     </div>
 </div>
 <div>
     Use the sliders to adjust the shape
 </div>
-<a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/rect.html">Code on Github</a>
+
 <script>
-    const getCanvasCoordinates = (event) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-        };
-    };
-    let x,y,width,height;
-    const updateProps = (event)=>{
-        console.log("update",event);
+    let x, y, width, height;
+    const updateProps = (event) => {
+        // apply values from slider
         let n = event.srcElement.name;
         const v = event.srcElement.value;
-        switch(n){
+        switch (n) {
             case "x": x = v * canvas.width;
-            break;
+                break;
             case "y": y = v * canvas.height;
-            break;
+                break;
             case "w": width = v * canvas.width;
-            break;
-            case "h": height = v* canvas.height;
-            break;
+                break;
+            case "h": height = v * canvas.height;
+                break;
         }
         drawRect();
-    }
-    window.addEventListener("load", ()=>{
-        x = canvas.width/2;
+    };
+    window.addEventListener("load", () => {
+        // set defaults
+        x = canvas.width / 2;
         width = x;
-        y = canvas.height/2;
-        height=y;
-    })
+        y = canvas.height / 2;
+        height = y;
+        drawRect();
+    });
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     ctx.strokeStyle = "black";
-    const drawRect = ()=>{
-        console.log("drawing",x,y, width, height)
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-        ctx.strokeRect(x,y, width, height);
+    const drawRect = () => {
+        console.log("drawing", x, y, width, height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeRect(x, y, width, height);
     }
-    window.addEventListener("mousedown", (event) => {
-        let coord = getCanvasCoordinates(event);
-        if (event.button === 0) {
-            if(event.shiftKey){
-                window.location.reload();
-                // example "clear" until we learn about the correct way
-            }
-            else{
-            ctx.moveTo(coord.x, coord.y);
-            console.log("Moved pen");
-            }
-        }
-        else {
-            ctx.lineTo(coord.x, coord.y);
-            ctx.stroke();
-            console.log("Drew line");
-        }
-    });
-    window.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    })
 </script>
