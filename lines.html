@@ -1,0 +1,44 @@
+<canvas id="canvas" style="border: 1px solid;">
+
+</canvas>
+<div>
+    <ul>
+        <li>Left click to move pen</li>
+        <li>Right click to draw line</li>
+        <li>Hold shift then left click to clear</li>
+    </ul>
+</div>
+
+<script>
+    const getCanvasCoordinates = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    };
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "black";
+    window.addEventListener("mousedown", (event) => {
+        let coord = getCanvasCoordinates(event);
+        if (event.button === 0) {
+            if(event.shiftKey){
+                window.location.reload();
+                // example "clear" until we learn about the correct way
+            }
+            else{
+            ctx.moveTo(coord.x, coord.y);
+            console.log("Moved pen");
+            }
+        }
+        else {
+            ctx.lineTo(coord.x, coord.y);
+            ctx.stroke();
+            console.log("Drew line");
+        }
+    });
+    window.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+    })
+</script>
