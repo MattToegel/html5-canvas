@@ -28,7 +28,8 @@
     const updateProps = (event) => {
         // apply values from slider
         let n = event.srcElement.name;
-        const v = event.srcElement.value;
+        // convert to number
+        const v = +event.srcElement.value;
         switch (n) {
             case "x": x = v * canvas.width;
                 break;
