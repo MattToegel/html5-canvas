@@ -1,0 +1,86 @@
+<canvas id="canvas" style="border: 1px solid;" width="500" height="500"></canvas>
+<div style="display: flex; flex-wrap: wrap;">
+    <div>
+        <label>Radius: <span id="radius-value">20</span></label>
+        <input type="range" min="1" max="50" step="1" name="radius" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>sx (Speed X): <span id="sx-value">2</span></label>
+        <input type="range" min="1" max="10" step="0.1" name="sx" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>sy (Speed Y): <span id="sy-value">2</span></label>
+        <input type="range" min="1" max="10" step="0.1" name="sy" oninput="updateProps(event)" />
+    </div>
+</div>
+
+
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+
+    let circle = {
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 20,
+        sx: 2,
+        sy: 2 
+    };
+
+    function updateProps(event) {
+        const name = event.target.name;
+        const value = parseFloat(event.target.value);
+
+        switch (name) {
+            case "radius":
+                circle.radius = value;
+                document.getElementById("radius-value").textContent = value;
+                break;
+            case "sx":
+                circle.sx = value;
+                document.getElementById("sx-value").textContent = value;
+                break;
+            case "sy":
+                circle.sy = value;
+                document.getElementById("sy-value").textContent = value;
+                break;
+        }
+    }
+
+    function drawCircle() {
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the circle
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "blue";
+        ctx.fill();
+        ctx.closePath();
+
+        // Update circle's position
+        circle.x += circle.sx;
+        circle.y += circle.sy;
+
+        // Check for collision with canvas bounds
+        if (circle.x + circle.radius > canvas.width) {
+            circle.x = canvas.width - circle.radius; // Reset to right edge
+            circle.sx *= -1; // Reverse horizontal direction
+        } else if (circle.x - circle.radius < 0) {
+            circle.x = circle.radius; // Reset to left edge
+            circle.sx *= -1; // Reverse horizontal direction
+        }
+
+        if (circle.y + circle.radius > canvas.height) {
+            circle.y = canvas.height - circle.radius; // Reset to bottom edge
+            circle.sy *= -1; // Reverse vertical direction
+        } else if (circle.y - circle.radius < 0) {
+            circle.y = circle.radius; // Reset to top edge
+            circle.sy *= -1; // Reverse vertical direction
+        }
+    }
+
+    // Set interval to draw the circle every 10ms, equivalent to 100 FPS
+    setInterval(drawCircle, 10);
+</script>
