@@ -1,0 +1,78 @@
+<canvas id="canvas" style="border: 1px solid;">
+
+</canvas>
+<div style="display:flex">
+    <div>
+        <label>X</label>
+        <input type="range" min="0" max="1" step="0.1" name="x" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>Y</label>
+        <input type="range" min="0" max="1" step="0.1" name="y" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>Max Width</label>
+        <input type="range" min="0" max="1" step="0.1" name="w" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>Stroke/Fill</label>
+        <input type="checkbox" name="s" oninput="updateProps(event)" />
+    </div>
+</div>
+<div>
+    <div>
+        <label>Font Style</label>
+        <input name="f" oninput="updateProps(event)" value="10px sans-serif" />
+    </div>
+    <div>
+        <label>Enter Text</label>
+        <textarea name="text" oninput="updateProps(event)">enter text</textarea>
+    </div>
+</div>
+<div>
+    Use the fields to adjust the text
+</div>
+<a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/text.html">Code on Github</a>
+<script>
+    let x, y, w, text = "enter text", filled = true, font = "10px sans-serif";
+    const updateProps = (event) => {
+        // apply values from slider
+        let n = event.srcElement.name;
+        const v = event.srcElement.value;
+        switch (n) {
+            case "x": x = +v * canvas.width;
+                break;
+            case "y": y = +v * canvas.height;
+                break;
+            case "w": w = +v * canvas.width;
+                break;
+            case "s": filled = !filled;
+                break;
+            case "f": font = v;
+                break;
+            case "text": text = v;
+                break;
+        }
+        drawText();
+    };
+    window.addEventListener("load", () => {
+        // set defaults
+        x = canvas.width / 2;
+        y = canvas.height / 2;
+        drawText();
+    });
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+    ctx.strokeStyle = "black";
+    const drawText = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = font;
+        if (filled) {
+            ctx.fillText(text, x, y, w);
+        }
+        else {
+            ctx.strokeText(text, x, y, w);
+        }
+
+    }
+</script>
