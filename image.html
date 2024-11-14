@@ -1,0 +1,110 @@
+<canvas id="canvas" style="border: 1px solid;" ></canvas>
+<div>
+    <label>Image URL:</label>
+    <input type="text" id="image-url" placeholder="Enter image URL"
+        value="https://www.publicdomainpictures.net/pictures/80000/velka/bird-1394483407aUi.jpg"
+        oninput="loadImage()" />
+</div>
+<div style="display: flex; flex-wrap: wrap;">
+    <div>
+        <label>sx</label>
+        <input type="range" min="0" max="1" step="0.01" name="sx" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>sy</label>
+        <input type="range" min="0" max="1" step="0.01" name="sy" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>sWidth</label>
+        <input type="range" min="0" max="1" step="0.01" name="swidth" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>sHeight</label>
+        <input type="range" min="0" max="1" step="0.01" name="sheight" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>dx</label>
+        <input type="range" min="0" max="1" step="0.01" name="dx" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>dy</label>
+        <input type="range" min="0" max="1" step="0.01" name="dy" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>dWidth</label>
+        <input type="range" min="0" max="1" step="0.01" name="dwidth" oninput="updateProps(event)" />
+    </div>
+    <div>
+        <label>dhHeight</label>
+        <input type="range" min="0" max="1" step="0.01" name="dheight" oninput="updateProps(event)" />
+    </div>
+</div>
+
+<script>
+    let img = new Image();
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+    // Initial values
+    let props = {
+        sx: 0, sy: 0, swidth: canvas.width, sheight: canvas.height,
+        dx: 0, dy: 0, dwidth: canvas.width, dheight: canvas.height
+    };
+
+    function loadImage() {
+        const url = document.getElementById("image-url").value || "https://www.publicdomainpictures.net/pictures/80000/velka/bird-1394483407aUi.jpg";
+        img.src = url;
+        img.onload = () => {
+            // Set initial source dimensions if not already set
+            props.swidth = img.width;
+            props.sheight = img.height;
+            drawImageOnCanvas();
+        };
+    }
+
+    function updateProps(event) {
+        const name = event.target.name;
+        const value = +event.target.value;
+
+        // Scale values based on canvas or image size
+        switch (name) {
+            case "sx":
+                props.sx = value * img.width;
+                break;
+            case "sy":
+                props.sy = value * img.height;
+                break;
+            case "swidth":
+                props.swidth = value * img.width;
+                break;
+            case "sheight":
+                props.sheight = value * img.height;
+                break;
+            case "dx":
+                props.dx = value * canvas.width;
+                break;
+            case "dy":
+                props.dy = value * canvas.height;
+                break;
+            case "dwidth":
+                props.dwidth = value * canvas.width;
+                break;
+            case "dheight":
+                props.dheight = value * canvas.height;
+                break;
+        }
+        drawImageOnCanvas();
+    }
+
+    function drawImageOnCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+            img,
+            props.sx, props.sy, props.swidth, props.sheight,
+            props.dx, props.dy, props.dwidth, props.dheight
+        );
+    }
+
+    // Load the default image on page load
+    window.addEventListener("load", loadImage);
+</script>
