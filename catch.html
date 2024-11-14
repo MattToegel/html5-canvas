@@ -1,0 +1,92 @@
+<canvas id="canvas" width="400" height="500" style="border: 1px solid;"></canvas>
+<p>Score: <span id="score">0</span> | Misses: <span id="misses">0</span></p>
+<a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/catch.html">Code on Github</a>
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const player = { x: canvas.width / 2 - 30, y: canvas.height - 30, width: 60, height: 10, speed: 5 };
+    let circles = [];
+    let score = 0, misses = 0, spawnRateMS = 1500;
+    let keys = { left: false, right: false }; // Track key presses
+    let gameStarted = false; // Track if the game has started
+
+    function showStartMessage() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("Press Space to Start", canvas.width / 2, canvas.height / 2);
+    }
+
+    function spawnCircle() {
+        circles.push({ x: Math.random() * (canvas.width - 20), y: 0, radius: 10, speed: 2 + score * 0.1 });
+        spawnRateMS = Math.max(500, 1500 - score * 10); // Increase spawn rate as score rises
+        if (gameStarted) setTimeout(spawnCircle, spawnRateMS);
+    }
+
+    function handleKeys() {
+        // Move player continuously based on key presses
+        if (keys.left && player.x > 0) player.x -= player.speed;
+        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed;
+    }
+
+    function updateGame() {
+        if (!gameStarted) return; // Do not update the game until it has started
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        handleKeys(); // Update player position based on keys
+
+        // Draw player
+        ctx.fillStyle = "blue";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Draw and update circles
+        circles.forEach((circle, index) => {
+            circle.y += circle.speed;
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            // Check if circle is caught by the player
+            if (circle.y + circle.radius > player.y &&
+                circle.x > player.x && circle.x < player.x + player.width) {
+                circles.splice(index, 1); // Remove circle
+                score++;
+                document.getElementById("score").textContent = score;
+            }
+            // Check if circle misses player
+            else if (circle.y > canvas.height) {
+                circles.splice(index, 1); // Remove circle
+                misses++;
+                document.getElementById("misses").textContent = misses;
+                if (misses >= 3) {
+                    alert("Game Over! Final Score: " + score);
+                    document.location.reload();
+                }
+            }
+        });
+
+        requestAnimationFrame(updateGame);
+    }
+
+    // Keydown and keyup listeners for smoother movement and starting the game
+    document.addEventListener("keydown", (e) => {
+        if (e.key === " " && !gameStarted) { // Start game on spacebar
+            gameStarted = true;
+            spawnCircle(); // Start spawning circles
+            updateGame(); // Start game loop
+        }
+
+        if (["ArrowLeft", "a", "A"].includes(e.key)) keys.left = true;
+        if (["ArrowRight", "d", "D"].includes(e.key)) keys.right = true;
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (["ArrowLeft", "a", "A"].includes(e.key)) keys.left = false;
+        if (["ArrowRight", "d", "D"].includes(e.key)) keys.right = false;
+    });
+
+    // Show start message initially
+    showStartMessage();
+</script>
