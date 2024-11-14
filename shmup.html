@@ -11,7 +11,7 @@
     let keys = { left: false, right: false };
     let gameStarted = false;
     let lastTimestamp = 0;
-
+    let gameEnded = false;
     function showStartMessage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = "20px Arial";
@@ -81,7 +81,8 @@
                 circles.splice(circIndex, 1); // Remove object
                 misses++;
                 document.getElementById("misses").textContent = misses;
-                if (misses >= 3) {
+                if (misses >= 3 && !gameEnded) {
+                    gameEnded = true;
                     alert("Game Over! Final Score: " + score);
                     document.location.reload();
                 }
