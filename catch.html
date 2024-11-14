@@ -4,11 +4,12 @@
 <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-    const player = { x: canvas.width / 2 - 30, y: canvas.height - 30, width: 60, height: 10, speed: 5 };
+    const player = { x: canvas.width / 2 - 30, y: canvas.height - 30, width: 60, height: 10, speed: 200 }; // speed in pixels per second
     let circles = [];
     let score = 0, misses = 0, spawnRateMS = 1500;
     let keys = { left: false, right: false }; // Track key presses
-    let gameStarted = false; // Track if the game has started
+    let gameStarted = false;
+    let lastTimestamp = 0;
 
     function showStartMessage() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -19,22 +20,23 @@
     }
 
     function spawnCircle() {
-        circles.push({ x: Math.random() * (canvas.width - 20), y: 0, radius: 10, speed: 2 + score * 0.1 });
+        circles.push({ x: Math.random() * (canvas.width - 20), y: 0, radius: 10, speed: 50 + score * 5 }); // speed in pixels per second
         spawnRateMS = Math.max(500, 1500 - score * 10); // Increase spawn rate as score rises
         if (gameStarted) setTimeout(spawnCircle, spawnRateMS);
     }
 
-    function handleKeys() {
-        // Move player continuously based on key presses
-        if (keys.left && player.x > 0) player.x -= player.speed;
-        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed;
+    function handleKeys(delta) {
+        // Move player continuously based on key presses and frame delta
+        if (keys.left && player.x > 0) player.x -= player.speed * delta;
+        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed * delta;
     }
 
-    function updateGame() {
-        if (!gameStarted) return; // Do not update the game until it has started
+    function updateGame(timestamp) {
+        const delta = (timestamp - lastTimestamp) / 1000; // Time in seconds since last frame
+        lastTimestamp = timestamp;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        handleKeys(); // Update player position based on keys
+        handleKeys(delta);
 
         // Draw player
         ctx.fillStyle = "blue";
@@ -42,15 +44,18 @@
 
         // Draw and update circles
         circles.forEach((circle, index) => {
-            circle.y += circle.speed;
+            circle.y += circle.speed * delta; // Apply delta to speed
+
             ctx.beginPath();
             ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
             ctx.fillStyle = "red";
             ctx.fill();
 
             // Check if circle is caught by the player
-            if (circle.y + circle.radius > player.y &&
-                circle.x > player.x && circle.x < player.x + player.width) {
+            if (
+                circle.y + circle.radius > player.y &&
+                circle.x > player.x && circle.x < player.x + player.width
+            ) {
                 circles.splice(index, 1); // Remove circle
                 score++;
                 document.getElementById("score").textContent = score;
@@ -75,7 +80,8 @@
         if (e.key === " " && !gameStarted) { // Start game on spacebar
             gameStarted = true;
             spawnCircle(); // Start spawning circles
-            updateGame(); // Start game loop
+            lastTimestamp = performance.now(); // Initialize lastTimestamp
+            requestAnimationFrame(updateGame); // Start game loop
         }
 
         if (["ArrowLeft", "a", "A"].includes(e.key)) keys.left = true;
