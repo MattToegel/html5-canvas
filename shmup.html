@@ -1,0 +1,127 @@
+<canvas id="canvas" width="400" height="500" style="border: 1px solid;"></canvas>
+<p>Score: <span id="score">0</span> | Hits Taken: <span id="misses">0</span></p>
+<a target="_blank" href="https://github.com/MattToegel/html5-canvas/blob/main/shmup.html">Code on Github</a>
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const player = { x: canvas.width / 2 - 20, y: canvas.height - 40, width: 40, height: 40, speed: 200 }; // speed in pixels per second
+    let circles = [];
+    let projectiles = [];
+    let score = 0, misses = 0, spawnRateMS = 1000;
+    let keys = { left: false, right: false };
+    let gameStarted = false;
+    let lastTimestamp = 0;
+
+    function showStartMessage() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("Press Enter to Start", canvas.width / 2, canvas.height / 2);
+    }
+
+    function spawnCircle() {
+        for (let i = 0; i < 2 + Math.floor(score / 10); i++) {
+            circles.push({
+                x: Math.random() * (canvas.width - 20),
+                y: 0,
+                radius: 10,
+                speed: 50 + score * 5 // speed in pixels per second
+            });
+        }
+        spawnRateMS = Math.max(500, 1000 - score * 10); // Increase spawn rate as score rises
+        if (gameStarted) setTimeout(spawnCircle, spawnRateMS);
+    }
+
+    function handleKeys(delta) {
+        if (keys.left && player.x > 0) player.x -= player.speed * delta;
+        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed * delta;
+    }
+
+    function shootProjectile() {
+        projectiles.push({ x: player.x + player.width / 2, y: player.y, radius: 5, speed: 300 }); // speed in pixels per second
+    }
+
+    function updateGame(timestamp) {
+        const delta = (timestamp - lastTimestamp) / 1000; // Time in seconds since last frame
+        lastTimestamp = timestamp;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        handleKeys(delta);
+
+        // Draw player
+        ctx.fillStyle = "blue";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Update and draw projectiles
+        projectiles.forEach((proj, projIndex) => {
+            proj.y -= proj.speed * delta;
+            ctx.beginPath();
+            ctx.arc(proj.x, proj.y, proj.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "green";
+            ctx.fill();
+
+            // Remove projectiles that go off the screen
+            if (proj.y < 0) projectiles.splice(projIndex, 1);
+        });
+
+        // Update and draw falling objects
+        circles.forEach((circle, circIndex) => {
+            circle.y += circle.speed * delta;
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+
+            // Check for collisions with player
+            if (
+                circle.y + circle.radius > player.y &&
+                circle.x > player.x && circle.x < player.x + player.width
+            ) {
+                circles.splice(circIndex, 1); // Remove object
+                misses++;
+                document.getElementById("misses").textContent = misses;
+                if (misses >= 3) {
+                    alert("Game Over! Final Score: " + score);
+                    document.location.reload();
+                }
+            }
+
+            // Check for collisions with projectiles
+            projectiles.forEach((proj, projIndex) => {
+                const dist = Math.hypot(proj.x - circle.x, proj.y - circle.y);
+                if (dist < circle.radius + proj.radius) {
+                    circles.splice(circIndex, 1); // Remove object
+                    projectiles.splice(projIndex, 1); // Remove projectile
+                    score++;
+                    document.getElementById("score").textContent = score;
+                }
+            });
+
+            // Remove circles that go off screen
+            if (circle.y > canvas.height) circles.splice(circIndex, 1);
+        });
+
+        requestAnimationFrame(updateGame);
+    }
+
+    // Key listeners for smoother movement, shooting, and starting the game
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !gameStarted) { // Start game on Enter key
+            gameStarted = true;
+            spawnCircle();
+            lastTimestamp = performance.now(); // Initialize lastTimestamp
+            requestAnimationFrame(updateGame); // Start game loop
+        }
+        if (["ArrowLeft", "a", "A"].includes(e.key)) keys.left = true;
+        if (["ArrowRight", "d", "D"].includes(e.key)) keys.right = true;
+        if (e.key === " " && gameStarted) shootProjectile(); // Shoot projectile on space
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (["ArrowLeft", "a", "A"].includes(e.key)) keys.left = false;
+        if (["ArrowRight", "d", "D"].includes(e.key)) keys.right = false;
+    });
+
+    showStartMessage();
+</script>
