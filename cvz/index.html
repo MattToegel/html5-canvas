@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicken and Zombie with Accurate Collision and Pursuit</title>
+    <style>
+        canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        #bgCanvas{
+            z-index: -1;
+        }
+        #gameCanvas {
+            z-index: 0;
+        }
+
+        #uiCanvas {
+            z-index: 1;
+            /* Foreground UI layer 
+            pointer-events: none;*/
+            /* Allow clicks to pass through */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="bgCanvas" width="600" height="600"></canvas>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <canvas tabindex="1" id="uiCanvas" width="600" height="600"></canvas>
+
+    <!-- Load scripts in order to ensure dependencies are met -->
+    
+    <script src="objects/GameObject.js"></script>
+    <script src="objects/Rocks.js"></script>
+    <script src="objects/Particle.js"></script>
+    <script src="objects/ParticleSystem.js"></script>
+    <script src="objects/Egg.js"></script>
+    <script src="objects/Camera.js"></script>
+    
+    <script src="objects/Chicken.js"></script>
+    <script src="objects/Zombie.js"></script>
+    
+    <script src="objects/ui.js"></script>
+
+    <!-- Main game logic -->
+    <script>
+        window.addEventListener("load", () => {
+            console.log("loaded")
+            setTimeout(() => {
+                let ele = document.createElement("script");
+                ele.src = "objects/main.js";
+                document.body.append(ele);
+            }, 50)
+
+        });
+    </script>
+</body>
+
+</html>
